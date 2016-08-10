@@ -1,0 +1,217 @@
+jonathan2023
+302892757
+
+
+orlykor12
+203595541
+
+
+=============================================================================
+README for ex6: Sjava Code verifier
+=============================================================================
+
+
+
+==================
+=  Description:  =
+==================
+main package-
+
+Classes-
+    Sjavac - The main class which from the program is running
+    
+    Parser - This class is responsible for reading the given files
+    
+    Scope - This class represents the scope for each part of the file
+
+    Method - The class that represent a method.
+
+    IllegalLineException - a bad line format has been entered. 
+
+    ReturnMissingException - a method was closed without "return;" line
+
+
+
+variables package
+
+    BracketsBlockException - This class is responsible for unmatching brackets
+    
+    DeclerationErrorException - This class is responsible for a bad decleration 
+                                                                        format.
+
+    FinalExceptionError - This class is responsible for the final type errors.
+
+    TypeExceptionError - This class is responsible for the errors of the 
+                                                        variables type error.
+
+    CheckForLegalVariables - This class checks if the variables match the types
+                                                 they were initialized with.
+
+    Final - This class receives a line that starts with the "final" string
+
+    Names - This class receives a line that starts with anything but, a 
+                                                        primitive type, a final
+
+    PrimitiveVariables - extends Variables; This class receives a line that 
+                                                starts with a primitive type
+
+    Variables - This class is the super class of all the global variables that 
+                                                                        can be.
+
+    VariablesObjects- This class creates the variables object which holds the name 
+            of the variable, the type, the value, if its final and its scope.
+
+
+
+    VariableType - enum which contains the legal Sjava types. 
+
+
+variables package
+
+    blocks - This class is responsible to check if the lines which starts with
+                           the strings "while" or "if" are in the correct form.
+
+    methodBlick - This class receives a line that represents a method line.
+
+
+
+
+
+
+
+
+
+======================
+=       Design       =
+======================
+    
+Our design is based on two readings of the Sjava code file. 
+The first one refers the global code structure and the methods first line (starting with "void...").
+In this phase we save the general variables in a general scope as a hash map, 
+with the variable name as key and the variable object itself as the value. As, for
+the methods, we save the name of the method and its parameters in a separate 
+arrayList.
+
+The second one refers only the methods. A method is checked line bey line and
+each variable is saved in the method scope. in case we have a while / if condition
+we open another scope which includes the variables used in the relative block.
+
+Bellow are the design elements we chose to implement:
+
+Blocks and Scopes - 
+    In order to deal with the blocks inner variables we chose to implement, a scope
+    class composed of a hash map and an indicator to a parent scope, such that the general
+    scope is the parent of each method, and each method is a parent of its inner
+    while / if blocks and so on.
+    This way a scope has the ability to make a search in the current block, and in
+    its wrapping blocks too.
+
+Variable Object -
+    Keeping object oriented programming principles we chose to implement a class
+    of variable object that includes the attributes of a variable. This way we could
+    define the type, the value, final element and name for each value. In case
+    of assigning we use the setValue method for the relevant variable object.
+
+Regexes- 
+    An Sjava code has constant patterns. Therefore we used regex patterns that
+    were an efficient filter for code lines.
+
+
+Types as Enums - 
+    Since Sjava has constant types we choose to implement an enum that included
+    all legal types. This way we have been able to preserve modularity and keep
+    the open-closed principle.
+
+
+Modularity Principles - Packages
+
+    building a multi-package code enabled us to preserve the modularity principles:
+
+    Decomposability - each package stands for its own, and takes care of separate
+        part of the exercise.
+
+    Composability - each package is connected via parser, and keeps the 
+    composability principle.
+
+    Understandability -  the division to variables, blocks & scopes and the general methods
+    make the code Understandable and displays the rational stands behind the design.
+
+    Continuity - since each package is not depand on the other the continuity 
+                principle is preserved.
+
+
+
+
+
+
+
+
+==========================
+=        Answers         =
+==========================
+
+Errors Handeling:
+
+    Exceptions - the exercise demands to decide wether a code is legal or not. In order
+                to make an informative prints to the screen we chose to send the following
+                messages, next to "1" print:
+
+              1. Not matching variable's type.
+              2. An illegal Sjava line has been entered.
+              3.Tried to change a final variable value.
+              4.The parameters not matching the method's parameters that had been defined.
+              5.Missing a return statement for methods.
+              6.Unmatching brackets have been found
+              7.This variable has already been declared.
+     
+            each message is implemented through a separate exception.
+    
+    Number 2 error is printed iff there was an I/O exception.
+
+
+Types of variable:
+    As mentioned above we chose to implement an enum for the types. his way
+     we have been able to preserve modularity and keep the open-closed principle. 
+
+
+Features are currently not supported-
+
+switch statements -
+    In order to implement an switch statements reading we would, act exactly as
+    done with methods taking the following staps:
+    if a line starts with switch and ends with {, we expect lines starting with
+    the word "case" and optional "break" and "default" lines. until we reach "}".
+
+Arrays (of any type) - 
+    as done with variables we can creat an object of arrays that can be in any type
+    mentioned at the enum types.
+    Each array will be able to save variables,which could be extraced with an 
+    inner class method.
+
+
+Two Regular Expressions Descreption:
+
+1. Variables Regular Expression - This Regular Expression is refering an assiging
+    of variables that has already been declared:
+    \\s*(_\\w+|[A-Za-z]+)\\w*(\\s*=\\s*\\w+)?(,\\s*(_\\w+|[A-Za-z]+)\\w*(\\s*=\\s*\\w+)?)*;$
+    1. The variable can have white spaces before.
+    2. The name of variable in the legal Sjava format.
+    3. If we have "=" mark there must be some sort of characters/numbers following.
+       we can have this format few times separated by comma.
+    4. in any case it has to end with ";".
+    
+
+2. Methods Regular Expression - 
+
+    This Regular Expression is refering to a method call:
+
+ ([A-Za-z]+\\w*)\\s*\\(((\\s*(\'.\'|\".*\"|_\\w+|[A-Za-z]+\\w*|\\d+(\\.\\d+)?)
+\\s*((,\\s*((\'.\'|\".*\"|_\\w+|[A-Za-z]+\\w*|\\d+(.\\d+)?|)\\s*)?)?))*)\\)\\s*\\;$
+
+    1. The name of the method in the legal Sjava format.
+    2. after the name of the method we have to have "(" sign.
+    3. parameters in a correct format (name of exesting variables or a new value, in a correct form).
+    4. Than "(" sign is a must.
+    5. in any case it has to end with ";".   
+
+
